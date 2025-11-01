@@ -1,0 +1,80 @@
+module hex_to_sseg 
+(
+    input logic [3:0] hex,
+    input logic dp,
+    output logic [7:0] sseg // output is active low
+
+
+);
+// we go g->a
+
+always_comb
+    begin
+        case(hex)
+        4'h0: sseg[6:0] = 7'b1000000; //check seg, this is a value of 0
+        4'h1: sseg[6:0] = 7'b1111001;
+        4'h2: sseg[6:0] = 7'b0100100;
+        4'h3: sseg[6:0] = 7'b0110000;
+        4'h4: sseg[6:0] = 7'b0011001;
+        4'h5: sseg[6:0] = 7'b0010010;
+        4'h6: sseg[6:0] = 7'b0000010;
+        4'h7: sseg[6:0] = 7'b1111000;
+        4'h8: sseg[6:0] = 7'b0000000;
+        4'h9: sseg[6:0] = 7'b0010000;
+        4'ha: sseg[6:0] = 7'b0001000;
+        4'hb: sseg[6:0] = 7'b0000011;
+        4'hc: sseg[6:0] = 7'b1000110;
+        4'hd: sseg[6:0] = 7'b0100001;
+        4'he: sseg[6:0] = 7'b0001110;
+        default: sseg[6:0] = 7'b0001110; // 4'hf
+    endcase
+    sseg[7] = dp;
+    end
+endmodule
+
+/*
+How it works from a stand point of how one could have come
+up with this themself.
+
+
+The entire process is simply decoding hex as an output.
+
+We start off understanding that the input signals we can 
+recieve are binary, hence we create a 4-b vector hex as we know
+that we want to map hex values to outputs. You should also
+realize that we will really need to have a binary to hex to
+display map (as opposed to an inital thought of recieving 
+hex)...
+So, if it is unclear to you why one would be motavated to 
+call this hex, all you are doing is saying 4-bit input represents
+0-15, and we will see that the case maps it to segment patterns.
+
+We know that one way or another, this input of binary needs
+to map onto some hex value by virture of a LED display.
+
+That is done like so,
+4 bits have 2^4 or 16 values.
+Thus it make sense that we can create 16 statements 
+and have each one map to a specific hex value:
+1, 2, ... d, e.
+
+The idea of a multiplexing route comes to mind, and
+that is why we see a case(hex) used. Only one number is 
+displayed at a time, and these cases should be mutually 
+exclusive. (What if there were n displays? Hint: just replicate!)
+
+We are simply saying that if a binary input of (x)_2
+enters, the case of 4'hy  = (x)_2 should execute. Ergo, 
+that should mean the leds on our display should light up
+in such a manner that they display a hex value(0-15)—
+which is done with the assignment of the 6-vector sseg to 
+the correct active low input.
+
+Now notice, our output is 8 bits, yet we only needed(and have) seven lights.
+The last, extra guy, can be used for a decimal point;
+go back up in your code and add that logic in. This does not
+belong in the case statement, it is a choice each mux 
+route needs to think about, thus add it outside of case.
+
+
+*/
